@@ -3,7 +3,8 @@ console.log('hello');
 var monitors = []
 var monitor_id = 0;
 var interval = null;
-var speed = 100;
+var speed = 50;
+var wait_screenshot = false;
 var pressing = false;
 
 $(document).ready(function () {
@@ -56,8 +57,8 @@ $(document).ready(function () {
         console.log(event)
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
+        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
 
         $.get(`/mouse/click?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -70,8 +71,8 @@ $(document).ready(function () {
         console.log(event)
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
+        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
 
         $.get(`/mouse/rightclick?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -80,13 +81,13 @@ $(document).ready(function () {
         event.preventDefault();
     })
 
-
+    // mouse down
     $('#screen-img').mousedown(function(event){
         pressing = true;
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
+        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
 
         $.get(`/mouse/mousedown?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -95,6 +96,7 @@ $(document).ready(function () {
         event.preventDefault();
     });
 
+    // mouse up
     $(document).mouseup(function(){
         pressing = false;
         
@@ -103,13 +105,14 @@ $(document).ready(function () {
         });
     })
 
+    // mouse move
     $('#screen-img').mousemove(function(event){
         if(pressing == false) return;
 
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
+        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
 
         $.get(`/mouse/mousemove?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -141,12 +144,20 @@ $(document).ready(function () {
 });
 
 async function screenShot() {
-    $.get(`/screenshot/${monitor_id}`, function (data, status) {
-        if(data){
-            $('#screen-img').attr("src", data.screenshot);
-            $('#screen-img').attr("hidden", false);
-        }else{
-            $('#screen-img').attr("hidden", true);
-        }
-    });
+    if(wait_screenshot){
+        return;
+    }else{
+        wait_screenshot = true;
+
+        $.get(`/screenshot/${monitor_id}`, function (data, status) {
+            if(data){
+                $('#screen-img').attr("src", data.screenshot);
+                $('#screen-img').attr("hidden", false);
+            }else{
+                $('#screen-img').attr("hidden", true);
+            }
+            wait_screenshot = false;
+        });
+    }
+    
 }
