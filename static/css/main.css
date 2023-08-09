@@ -7,12 +7,19 @@
     background-image: url(/static/img/screen.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    padding-bottom: 100px;
+    padding-bottom: 80px;
+    text-align: center;
 
+}
+
+.background{
+    background-color: black;
+    height: 100%;
+    width: 100%;
 }
 
 #screen-img{
     height: 100%;
-    width: 100%;
+    width: auto;
     /* border: solid 1px black; */
 }

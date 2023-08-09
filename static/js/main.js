@@ -104,6 +104,11 @@ $(document).ready(function () {
 
 async function screenShot() {
     $.get(`/screenshot/${monitor_id}`, function (data, status) {
-        $('#screen-img').attr("src", data.screenshot);
+        if(data){
+            $('#screen-img').attr("src", data.screenshot);
+            $('#screen-img').attr("hidden", false);
+        }else{
+            $('#screen-img').attr("hidden", true);
+        }
     });
 }
