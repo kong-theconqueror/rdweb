@@ -4,6 +4,7 @@ var monitors = []
 var monitor_id = 0;
 var interval = null;
 var speed = 100;
+var pressing = false;
 
 $(document).ready(function () {
     //get monitors
@@ -78,6 +79,43 @@ $(document).ready(function () {
 
         event.preventDefault();
     })
+
+
+    $('#screen-img').mousedown(function(event){
+        pressing = true;
+        var monitor = monitors[monitor_id]
+        console.log('width', $("#screen-img").width())
+        var x = monitor.width*event.offsetX/$("#screen-img").width();
+        var y = monitor.height*event.offsetY/$("#screen-img").height();
+
+        $.get(`/mouse/mousedown?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
+            console.log(data);
+        });
+
+        event.preventDefault();
+    });
+
+    $(document).mouseup(function(){
+        pressing = false;
+        
+        $.get(`/mouse/mouseup`, function (data, status) {
+            console.log(data);
+        });
+    })
+
+    $('#screen-img').mousemove(function(event){
+        if(pressing == false) return;
+
+        var monitor = monitors[monitor_id]
+        console.log('width', $("#screen-img").width())
+        var x = monitor.width*event.offsetX/$("#screen-img").width();
+        var y = monitor.height*event.offsetY/$("#screen-img").height();
+
+        $.get(`/mouse/mousemove?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
+            console.log(data);
+        });
+    });
+
 
     // common key
     $(document).keypress(function(e) {
