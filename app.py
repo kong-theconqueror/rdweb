@@ -1,10 +1,17 @@
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, request
 from screeninfo import get_monitors
 from PIL import ImageGrab
 import base64
 from io import BytesIO
+from pynput.mouse import Button, Controller as MouseController
+
+from api.keyboard_api import keyboard_api
+from api.mouse_api import mouse_api
 
 app = Flask(__name__)
+app.register_blueprint(keyboard_api)
+app.register_blueprint(mouse_api)
+
 monitors = get_monitors()
 
 @app.route("/")
@@ -29,3 +36,4 @@ def screenshot(monitor_id=0):
         return { "screenshot": img_base64.decode("utf-8")}
     else:
         abort(404)
+
