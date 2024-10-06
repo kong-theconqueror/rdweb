@@ -25,40 +25,58 @@ $(document).ready(function () {
         var optionSelected = $(this).find("option:selected");
         var valueSelected = optionSelected.val();
         // console.log(optionSelected, valueSelected)
-    
+
         monitor_id = Number(valueSelected);
-    
-        if(interval){
+
+        if (interval) {
             clearInterval(interval);
             interval = setInterval(screenShot, speed);
         }
     });
-    
+
     //
-    $("#btn-start").click(function(){
+    $("#btn-start").click(function () {
         //get screenshot
-        if(!interval){
+        if (!interval) {
             // console.log('Start')
             interval = setInterval(screenShot, speed);
             $(this).text("Stop");
-        }else{
+        } else {
             // console.log('Stop')
             clearInterval(interval);
             interval = null;
             $(this).text("Start");
         }
-        
+
     });
+
+    //
+    $("#btn-fullscreen").click(function () {
+        var elem = document.getElementById("screen-img");
+
+        //set full screen
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+          } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+          } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+          }else{
+            console.log('No support!')
+        }
+
+    });
+
 
 
     // event on screen
     // left click
-    $("#screen-img").click(function(event){
+    $("#screen-img").click(function (event) {
         console.log(event)
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width * event.offsetX / $("#screen-img").width();
+        var y = monitor.y + monitor.height * event.offsetY / $("#screen-img").height();
 
         $.get(`/mouse/click?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -67,12 +85,12 @@ $(document).ready(function () {
     })
 
     // right click
-    $("#screen-img").contextmenu(function(event){
+    $("#screen-img").contextmenu(function (event) {
         console.log(event)
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width * event.offsetX / $("#screen-img").width();
+        var y = monitor.y + monitor.height * event.offsetY / $("#screen-img").height();
 
         $.get(`/mouse/rightclick?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -82,12 +100,12 @@ $(document).ready(function () {
     })
 
     // mouse down
-    $('#screen-img').mousedown(function(event){
+    $('#screen-img').mousedown(function (event) {
         pressing = true;
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width * event.offsetX / $("#screen-img").width();
+        var y = monitor.y + monitor.height * event.offsetY / $("#screen-img").height();
 
         $.get(`/mouse/mousedown?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -97,22 +115,22 @@ $(document).ready(function () {
     });
 
     // mouse up
-    $(document).mouseup(function(){
+    $(document).mouseup(function () {
         pressing = false;
-        
+
         $.get(`/mouse/mouseup`, function (data, status) {
             console.log(data);
         });
     })
 
     // mouse move
-    $('#screen-img').mousemove(function(event){
-        if(pressing == false) return;
+    $('#screen-img').mousemove(function (event) {
+        if (pressing == false) return;
 
         var monitor = monitors[monitor_id]
         console.log('width', $("#screen-img").width())
-        var x = monitor.x + monitor.width*event.offsetX/$("#screen-img").width();
-        var y = monitor.y + monitor.height*event.offsetY/$("#screen-img").height();
+        var x = monitor.x + monitor.width * event.offsetX / $("#screen-img").width();
+        var y = monitor.y + monitor.height * event.offsetY / $("#screen-img").height();
 
         $.get(`/mouse/mousemove?x=${Math.round(x)}&y=${Math.round(y)}`, function (data, status) {
             console.log(data);
@@ -121,7 +139,7 @@ $(document).ready(function () {
 
 
     // common key
-    $(document).keypress(function(e) {
+    $(document).keypress(function (e) {
         console.log(e, e.keyCode)
         var key = e.keyCode ? e.keyCode : e.which;
 
@@ -131,33 +149,33 @@ $(document).ready(function () {
     });
 
     // function key
-    $(document).keyup(function(e){
+    $(document).keyup(function (e) {
         console.log(e, e.keyCode)
         var key = e.keyCode ? e.keyCode : e.which;
-        if(key < 65){
+        if (key < 65) {
             $.get(`/keyboard/keyup?key=${key}`, function (data, status) {
                 console.log(data);
             });
         }
     });
-    
+
 });
 
 async function screenShot() {
-    if(wait_screenshot){
+    if (wait_screenshot) {
         return;
-    }else{
+    } else {
         wait_screenshot = true;
 
         $.get(`/screenshot/${monitor_id}`, function (data, status) {
-            if(data){
+            if (data) {
                 $('#screen-img').attr("src", data.screenshot);
                 $('#screen-img').attr("hidden", false);
-            }else{
+            } else {
                 $('#screen-img').attr("hidden", true);
             }
             wait_screenshot = false;
         });
     }
-    
+
 }

@@ -8,9 +8,12 @@ from pynput.mouse import Button, Controller as MouseController
 from api.keyboard_api import keyboard_api
 from api.mouse_api import mouse_api
 
+READ_ONLY_MODE = True
+
 app = Flask(__name__)
-app.register_blueprint(keyboard_api)
-app.register_blueprint(mouse_api)
+if(not READ_ONLY_MODE):
+    app.register_blueprint(keyboard_api)
+    app.register_blueprint(mouse_api)
 
 monitors = get_monitors()
 
